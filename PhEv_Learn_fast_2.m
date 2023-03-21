@@ -45,7 +45,7 @@ for i = 1:n_rep
     D_pre = zeros(M,K);
     while fl_stp == 0
         % Phasic Event Assignment
-        MPP = Decomp_EEG(X,D,th,0);
+        MPP = Decomp_EEG(X,D,M,th,0);
         MPP = MPP(~cellfun(@isempty,{MPP.Trials}));
         MPP_all = [MPP.Trials];
         
@@ -86,6 +86,6 @@ end
 th_opt = th;
 
 % Final Decomposition
-[MPP,D] = Decomp_EEG(X,D,th,1);
+[MPP,D] = Decomp_EEG(X,D,M,th,1);
 
 end     
