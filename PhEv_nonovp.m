@@ -1,9 +1,10 @@
-function [MPP,D] = PhEv_nonovp(x,D,th,f)
+function [MPP,D] = PhEv_nonovp(x,D,M,th,f)
 
 % Function to decompose single - trial, single channel traces of EEG
 % INPUTS
 % x - single trial, single channel, bandpassed EEG trace 
 % D - Dictionary 
+% M - length of oscillation -> only to check for the case K = 1. It is later reset.  
 % th - threshold learnt from denoising
 % f - flag for adjusting length of atoms and detections (Crude post - processing) 
 %     f = 0: event lengths are not adjusted
@@ -21,8 +22,11 @@ MPP = struct();
 n = 1;
 
 sz = arrayfun(@(s) numel(s.cent),D);
-if all(sz == sz(1))
+if all(sz == sz(1)) 
     D_new = struct();
+    if n_te == 1 && D(1).len <= M/2
+        continue
+    end
     for d = 1:n_te
         d_n = setPhEv(D(d).cent,1,f);
         if ~isempty(d_n)
