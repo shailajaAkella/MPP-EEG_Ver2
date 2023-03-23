@@ -18,7 +18,7 @@ sz = arrayfun(@(s) numel(s.cent),D);
 if all(sz == sz(1))
     D_new = struct();
     for d = 1:n_te
-        if n_te == 1 && length(D(1).cent) < M/2
+        if n_te == 1 && length(D(1).cent) < M
             D_new = D;
     	    break;
         end
