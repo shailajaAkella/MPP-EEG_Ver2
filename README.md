@@ -3,12 +3,12 @@ Matlab code that decomposes EEG, ECoG or LFP data exploiting a Marked Point Proc
 
 Running instructions: 
 
-Inputs
+Inputs <br />
 X - banpassed, multi - trial, single channel EEG signal in cell format or row format. (Dimension: number of trials X Time) <br />
 M - Maximum length of event in samples. For ex., sleep spindles are approximately 0.5s in length. In that case, M = 0.5 X sampling frequency <br />
 K - Total number of dictionary atoms/ templates/ clusters of events. <br />
 
-Outputs
+Outputs <br />
 MPP - structure comprising of trial wise detections (as a marked point process (MPP)):  <br />
        PhEv - normalized snippet of the exracted event, <br />
        tau - time point of occurrence (mid - point),<br />
