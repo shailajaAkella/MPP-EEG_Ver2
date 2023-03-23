@@ -1,15 +1,12 @@
 function D_c = D_init_data(X,M,K,n_rep)
 
-% Function to initilaize dictionary comprising of typical phasic events
-% INPUTS: 
-% X - structure of bandpassed single trial/ multi - trial EEG traces. Size: number of trials X 1. Field name must be set to Trial. 
-% M - Maximum length of event in samples. For ex., sleep spindles are 0.5s
+% X - single-trial (vector), multi-trial/same length (matrix), or
+% mult-trial/different lengths (cell) input with single-channel EEG data
 % K - number of clusters
-% n_rep - number of dictonary initializations
-% OUTPUTS:
-% D: Initialized dictionary. Struture of size 1 X n_rep
 
-n_tr = size(X,1);     
+%X_M = zeros(0,0);
+
+n_tr = size(X,1);               % EEG traces MUST be row vectors
 
 % Hilbert amplitude
 X_abs = struct();

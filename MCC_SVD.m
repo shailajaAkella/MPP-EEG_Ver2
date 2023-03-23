@@ -1,36 +1,33 @@
 function [U,mu,ct] = MCC_SVD(X,eps,Corr_sig_t)
 
-% Maximum Correntropy Criterion Based Single Value Decomposition
-% INPUTS: 
-% X - All phasic events detected using a single dictionary atom
-% eps - stopping crtierion
-% Corr_sig_t - kernel bandwidth
-% OUTPUTS: 
-% U - most representative principal component
-% mu - zero
-% ct - number of iterations run
-
-% Reference: R. He, B. Hu, W. Zheng and X. Kong, "Robust Principal Component Analysis Based 
-% on Maximum Correntropy Criterion," in IEEE Transactions on Image Processing, 
-% vol. 20, no. 6, pp. 1485-1494, June 2011, doi: 10.1109/TIP.2010.2103949.
-
+% MCC SVD
 % KEY: For zero mean bases, force mu_t to be zero EVERYTIME
 
+% figure
+% scatter(X(1,:),X(2,:))
+% hold on
 
 fl = 0;
 mr = 1;                             % Number of principal components to estimate
 [U_t,~,~] = svds(X,mr);
+%Ut = [1; 0];
 mu_t = mean(X,2);
 [~,n] = size(X);
 ct_max = 50;
 
 mu_t = zeros(size(mu_t));
 
+%plot([-10*abs(U_t(1)) 0 10*abs(U_t(1))], [-10*abs(U_t(2)) 0 10*abs(U_t(2))], 'r', 'Linewidth',2)
+
 if nargin == 2
     ct = 1;
     while fl == 0
         % Kernel width calculation
         X_cent_t = bsxfun(@minus,X,mu_t);
+%         tic
+%         aux1 = (diag(X_cent_t'*X_cent_t) - (diag(X_cent_t'*(U_t*U_t')*X_cent_t)))';
+%         toc
+      
         aux = (X_cent_t - (U_t*U_t')*X_cent_t);
         X_d_t = sum(aux.^2,1);
         sig_e_t = std(X_d_t);
@@ -38,6 +35,8 @@ if nargin == 2
         Corr_sig_t = 1.06*min([sig_e_t R_t/1.34])*n^(-1/5);
     
         % Correntropy and Updates
+        %Corr_arg_t = sum(X_cent_t.^2,1) - (diag(X_cent_t'*(Ut*Ut')*X_cent_t))';
+        %Corr_arg_t = (diag(X_cent_t'*X_cent_t) - (diag(X_cent_t'*(U_t*U_t')*X_cent_t)))';
         Corr_arg_t = X_d_t;
         p_t = -exp(-Corr_arg_t/(2*Corr_sig_t));
     
@@ -51,17 +50,31 @@ if nargin == 2
         
         if mean(isnan(PCA_param(:))) ~= 0
             display('NaN Warning')
+%             p_t
+%             X_cent_t
         end
         
         if mean(isinf(PCA_param(:))) ~= 0
             display('Inf Warning')
+%             p_t
+%             X_cent_t
         end
         
+        %[U_t1,~] = eigs(PCA_param,mr);
         [V,D] = eig(PCA_param);
         [~,idx] = sort(diag(D),'descend');
         V = V(:,idx);
         U_t1 = V(:,1:mr);
+
         
+%         pause(0.1)
+%         plot([-10*abs(U_t(1)) 0 10*abs(U_t(1))], [-10*abs(U_t(2)) 0 10*abs(U_t(2))], 'r', 'Linewidth',2)
+%         hold on
+
+        
+        %U_t1 = U_M(:,1);
+        
+        %norm_diff = norm(U_t - U_t1);
         norm_diff = norm(abs(U_t) - abs(U_t1));
         
         if ct == ct_max
@@ -75,6 +88,7 @@ if nargin == 2
         if fl == 1
             U = U_t1;
             mu = mu_t;
+            %display(['Done in ' num2str(ct) ' iterations'])
         else
             U_t = U_t1;
             ct = ct + 1;
@@ -83,14 +97,23 @@ if nargin == 2
 elseif nargin == 3
     ct = 1;
     while fl == 0
-     
+%         % Kernel width calculation
+%         X_cent_t = bsxfun(@minus,X,mu_t);
+%         aux = (X_cent_t - (Ut*Ut')*X_cent_t);
+%         X_d_t = sum(aux.^2,1);
+%         sig_e_t = std(X_d_t);
+%         R_t = iqr(X_d_t);
+%         Corr_sig_t = 1.06*min([sig_e_t R_t/1.34])*n^(-1/5);
+        
         X_cent_t = bsxfun(@minus,X,mu_t);
         % Correntropy and Updates
+        %Corr_arg_t = sum(X_cent_t.^2,1) - (diag(X_cent_t'*(Ut*Ut')*X_cent_t))';
         Corr_arg_t = (diag(X_cent_t'*X_cent_t) - (diag(X_cent_t'*(U_t*U_t')*X_cent_t)))';
         p_t = -exp(-Corr_arg_t/(2*Corr_sig_t));
     
         mu_t = (1/sum(p_t))*(sum(bsxfun(@times,p_t,X),2));
         X_cent_t = bsxfun(@minus,X,mu_t);
+        %size(X_cent_t)
         [U_t1,~,~] = svds(X_cent_t,mr);
         norm_diff = norm(U_t - U_t1);
         if norm_diff < eps

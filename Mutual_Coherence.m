@@ -1,6 +1,5 @@
 function mu = Mutual_Coherence(D)
 
-% Function to calculate mutual coherence between dictionary atoms
 K = size(D,2);
 
 if K == 1

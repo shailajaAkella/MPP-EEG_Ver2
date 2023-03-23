@@ -1,9 +1,13 @@
 function [MPP,D]  = Decomp_EEG(X,Clust,M,th,f)
-% Function that analyzes/decomposes single-channel EEG traces for a given dictionary
+% Function that analyzes/decomposes single-channel EEG traces for a given
+% dictionary
 % INPUTS:
-% X - structure of bandpassed single trial/ multi - trial EEG traces. Size of structure: number of trials X 1. Field name must be set to Trial. 
-% Clust - structure of dictionary atoms. Size of structure: 1 X K  
-% th - sparsity constraint from denoising
+% X - single-trial (row vector), multi-trial/same length (matrix), or
+% multi-trial/different lengths (cell/structure) input with single-channel EEG data
+% Single traces MUST be row vectors
+% D - Dictionary, matrix MxK. M: duration of phasic events (in samples), K:
+% number of atoms/filters in the dictionary
+% th - sparsity constraint 
 
 % if not one, convert to structure
 n_tr = size(X,1);
@@ -16,7 +20,7 @@ end
 % Decomposition per trial
 MPP = struct();
 for i = 1:n_tr
-    [MPP_tr,D] = PhEv_nonovp(X(i).Trial,Clust,M, th,f); % decomposition function
+    [MPP_tr,D] = PhEv_nonovp(X(i).Trial,Clust,M,th,f); % decomposition function
     n_det = size(MPP_tr,2);
     for j = 1:n_det
         MPP_tr(j).PhEv = bsxfun(@rdivide,MPP_tr(j).PhEv,sqrt(sum(MPP_tr(j).PhEv.^2)));  % Unit-norm atoms

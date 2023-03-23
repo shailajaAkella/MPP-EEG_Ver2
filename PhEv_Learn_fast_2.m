@@ -1,4 +1,4 @@
-function [D,MPP,th_opt] = PhEv_Learn_fast_2(X, M, K)
+function [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(X, M, K)
 % THIS IS THE MAIN FUNCTION THAT CALLS ALL THE REST. 
 % Inputs 
 % X - banpassed, multi - trial, single channel EEG signal. Must be in cell format or
@@ -6,7 +6,7 @@ function [D,MPP,th_opt] = PhEv_Learn_fast_2(X, M, K)
 % M - Maximum length of event in samples. For ex., sleep spindles are 0.5s
 % in length. In that case, M = 0.5 X sampling frequency
 % K - Total number of dictionary atoms/ templates/ clusters of events.
-% Outputs
+% Ourputs
 % MPP - structure comprising of trial wise detections (as a marked point process (MPP)): 
 %       PhEv - normalized snippet of the exracted event,
 %       tau - time point of occurrence (mid - point),
@@ -26,7 +26,7 @@ end
 X = cell2struct(X,'Trial',n_tr);
 
 % Threshold Calculation
-[~,th] = Denoise(X,M,1);
+[th, ar, bw] = Denoise(X,M,1);
 
 % Dictionary Learning - Training - Alternating estimations
 disp('Initializing Dictionary for 10 possible cases')
@@ -79,13 +79,15 @@ for i = 1:n_rep
 end
 [~, idx] = min(mu_coh);
 clear D
+
 for i = 1:K
  D(i).cent = D_fin(idx).Rep(:,i);
 end
 
-th_opt = th;
+% D = Rem_OutBand(D);
 
 % Final Decomposition
 [MPP,D] = Decomp_EEG(X,D,M,th,1);
 
+th_opt = th;
 end     

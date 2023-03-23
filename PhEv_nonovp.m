@@ -1,18 +1,11 @@
 function [MPP,D] = PhEv_nonovp(x,D,M,th,f)
-
-% Function to decompose single - trial, single channel traces of EEG
 % INPUTS
 % x - single trial, single channel, bandpassed EEG trace 
 % D - Dictionary 
-% M - length of oscillation -> only to check for the case K = 1. It is later reset.  
 % th - threshold learnt from denoising
 % f - flag for adjusting length of atoms and detections (Crude post - processing) 
 %     f = 0: event lengths are not adjusted
 %     f = 1: event lengths are adjusted to include only oscillations
-% OUTPUTS
-% MPP - Detected phasic events from input trace and its features
-% D - For, f = 0: Same as input D, 
-%     For, f = 1: centers adjusted to include only oscillations 
 
 
 N = length(x);
@@ -22,11 +15,11 @@ MPP = struct();
 n = 1;
 
 sz = arrayfun(@(s) numel(s.cent),D);
-if all(sz == sz(1)) 
+if all(sz == sz(1))
     D_new = struct();
-    if n_te == 1 && D(1).len <= M/2
-        continue
-    end
+    if n_te == 1 && D(1).len < M/2
+	continue
+    end 
     for d = 1:n_te
         d_n = setPhEv(D(d).cent,1,f);
         if ~isempty(d_n)
@@ -74,7 +67,7 @@ if idx_max + M > N                          % Condition for right edge
     MPP = struct();
     i = i-1;
 else
-    if (idx_max - M + 1) <= 0                % Condition for left edge
+    if (idx_max - M + 1) <= 0
         l = length(1:idx_max+ M -1);
         max_tau(1:idx_max+ M-1) = zeros(l,1);
     else
@@ -162,7 +155,6 @@ end
 function [x,t] = setPhEv(x_i,t_i,f)
 % Post - processing for length adjustments
 % x_i - snippet, t_i - time stamp of occurrence, f - flag for adjustments
-% Uses hilbert transform
 if f
     M = 1:length(x_i);
     aux_M = round(M(end)/2);
@@ -177,8 +169,11 @@ if f
             x_norm(1) = norm(x_i(1:L_idx(1)));
             x_norm(2) = norm(x_i(L_idx(1):end));
             [~,I] = max(x_norm);
-            if (I == 1) idx = 1:L_idx(1);
-            else idx = L_idx(1):M(end); end
+            if (I == 1)
+                idx = 1:L_idx(1);
+            else
+                idx = L_idx(1):M(end);
+            end
         otherwise
             x_norm(1) = norm(x_i(1:L_idx(1)));
             for j = 2:length(L_idx)
@@ -186,10 +181,15 @@ if f
             end
             x_norm(j+1) = norm(x_i(L_idx(j):end));
             [~,I] = max(x_norm);
-            if I == 1 idx = 1:L_idx(1);
-            elseif I == j+1 idx = L_idx(j):M(end);
-            else idx = L_idx(I-1):L_idx(I); end
+            if I == 1
+                idx = 1:L_idx(1);
+            elseif I == j+1
+                idx = L_idx(j):M(end);
+            else
+                idx = L_idx(I-1):L_idx(I);
+            end
     end
+    
     x =[]; t =[];
     if (length(idx) > M(end)/2)
         x = x_i(idx);

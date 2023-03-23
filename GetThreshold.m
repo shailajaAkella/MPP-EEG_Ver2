@@ -1,11 +1,4 @@
-function [th,ar,bw] = Denoise(X,M,mul)
-% Function to isolate putative neuromodulatory events from background noise
-% Uses a hierarchical detection scheme and a correntropic similarity
-% measure to detect PUTATIVE events
-% X - NX1 cells/struct comprising of trial signals
-% M - maximum length of neuromodulation
-% mul - multiplicative factor for Silverman's rule
-% USES CORRENTROPY AND STANDARD DEVIATION 
+function th = GetThreshold(X,M,ar,bw)
 
 n_tr = size(X,1);
 
@@ -43,14 +36,12 @@ for i = 1:n_tr
         end
     end
     
-    clear pts
-    pts(1,:) = find(X_temp1);
+    pts = find(X_temp1);
     pt1 = [pts(1) pts(find(diff(pts)>1)+1)];
     pt2 = [pts(find(diff(pts)>1)) pts(end)];
     
     for k = 1:length(pt2)
-        clear snippet
-        snippet(1,:) = X_temp2(pt1(k):pt2(k));
+        snippet = X_temp2(pt1(k):pt2(k));
         L = length(snippet);
         x = [];
         if (L >= M/2)
@@ -80,53 +71,13 @@ for i = 1:n_tr
     end
 end
 X_M = X_M';
-[rows,cols] = size(X_M);
-x_m_norm = norm(X_M(:));
-X_M = X_M./ x_m_norm;
 
-P_vec = zeros(1,cols);
-sig_e = std(X_M(:));
-sig = (1.06 * sig_e * (N)^(-0.2))*mul;
-
-parfor i = 1:cols
-    for j = 1:cols
-        if (i ~= j)
-            t = (1/M) * sum((1/(sqrt(2*pi)*sig))*exp((-(X_M(:,i) - X_M(:,j)).^2)/(2*sig^2)));
-            P_vec(i) = t + P_vec(i);
-        end
-    end
-end
-
-P_vec = (1/cols)*P_vec;
-[P_vec,I] = sort(P_vec,'descend');
-
-X_M = X_M*x_m_norm;
-
-prc_v = 8:0.5:15;
-s_v = zeros(1,length(prc_v));
-
-for i = 1:length(prc_v)
-    idx = find(P_vec > prctile(P_vec,prc_v(i)));
-    X_lr = X_M(:,I(idx));
-    s_v(i) = skewness(X_lr(:));
-    clear X_lr X_sp P_lr
-end
-
-[~, idx_min] = min(abs(s_v));        % Skewness value closest to zero
-p_val = prctile(P_vec,prc_v(idx_min));
-ID = find(P_vec < p_val);
-idx_lr = I(find(P_vec >= p_val));
-idx_sp = I(find(P_vec < p_val));
-
-mv = mean(sqrt(movvar(vecnorm(X_M(:,I)),10)));
-
-th = min(vecnorm(X_M(:,idx_sp)));
 VN = vecnorm(X_M);
-
 pts = linspace(min(VN),max(VN),1000);
-[f,xc,bw] = ksdensity(VN,pts);
-[~,ind] = min(abs(xc - th));
-ar = trapz(xc(1:ind-1),f(1:ind-1));
+[f,xc] = ksdensity(VN,pts,'Bandwidth',bw);
+for i = 3:length(xc)-2
+    ar_f(i) = trapz(xc(1:i-1),f(1:i-1));
 end
-
-
+[~,ind] = min(abs(ar - ar_f));
+th = xc(ind);
+end

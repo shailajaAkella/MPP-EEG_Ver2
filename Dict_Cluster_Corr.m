@@ -1,6 +1,4 @@
 function D_new = Dict_Cluster_Corr(PhEv,D_idx,K,D_old,eps)
-
-% Function to update the dictionary
 % Inputs
 % PhEv - all detected events
 % D_idx - list of dictionary indices for each event
