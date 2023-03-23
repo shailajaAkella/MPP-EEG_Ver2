@@ -10,7 +10,7 @@ K - Total number of dictionary atoms/ templates/ clusters of events. <br />
 
 Outputs <br />
 MPP - structure comprising of trial wise detections (as a marked point process (MPP)):  <br />
-       PhEv - normalized snippet of the exracted event, <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp PhEv - normalized snippet of the exracted event, <br />
        tau - time point of occurrence (mid - point),<br />
        alph - maximum absolute amplitude of the event,<br />
        D_idx - dictionary index that maximally correlates<br />
