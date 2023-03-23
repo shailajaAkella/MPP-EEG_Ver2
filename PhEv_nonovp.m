@@ -18,7 +18,7 @@ sz = arrayfun(@(s) numel(s.cent),D);
 if all(sz == sz(1))
     D_new = struct();
     if n_te == 1 && D(1).len < M/2
-	continue
+	continue;
     end 
     for d = 1:n_te
         d_n = setPhEv(D(d).cent,1,f);
