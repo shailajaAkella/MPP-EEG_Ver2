@@ -10,11 +10,11 @@ K - Total number of dictionary atoms/ templates/ clusters of events. <br />
 
 Outputs <br />
 MPP - structure comprising of trial wise detections (as a marked point process (MPP)):  <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp PhEv - normalized snippet of the exracted event, <br />
-       tau - time point of occurrence (mid - point),<br />
-       alph - maximum absolute amplitude of the event,<br />
-       D_idx - dictionary index that maximally correlates<br />
-       pow - power of the extracted snippet<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PhEv - normalized snippet of the exracted event, <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tau - time point of occurrence (mid - point),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alph - maximum absolute amplitude of the event,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; D_idx - dictionary index that maximally correlates<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pow - power of the extracted snippet<br />
 D - Dictionary atoms/ centers of the cluster/ templates of the events<br />
 th - minimum norm of burst in training data<br />
 ar, bw - properties of event norm distribition.  <br />
