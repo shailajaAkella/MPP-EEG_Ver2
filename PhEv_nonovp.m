@@ -20,6 +20,7 @@ if all(sz == sz(1))
     for d = 1:n_te
         if n_te == 1 && length(D(1).cent) < M
             D_new = D;
+            D_new(1).len =  D(1).cent;
     	    break;
         end
         d_n = setPhEv(D(d).cent,1,f);
