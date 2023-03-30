@@ -18,17 +18,22 @@ sz = arrayfun(@(s) numel(s.cent),D);
 if all(sz == sz(1))
     D_new = struct();
     for d = 1:n_te
-        if n_te == 1 && length(D(1).cent) < M
+        if (n_te == 1 && length(D(1).cent) < M)
             D_new = D;
-            D_new(1).len =  lenght(D(1).cent);
+            D_new(1).len = lenght(D(1).cent);
     	    break;
         end
+
         d_n = setPhEv(D(d).cent,1,f);
         if ~isempty(d_n)
             D_new(n).cent = d_n;
             D_new(n).len = length(d_n);
             n = n+1;
+        elseif(isempty(d_n) && n_te == 1)
+            D_new = D;
+            D_new(1).len = length(D(1).cent);
         end
+
     end
     clear D
     D = D_new;

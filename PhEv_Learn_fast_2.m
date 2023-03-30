@@ -6,7 +6,7 @@ function [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(X, M, K)
 % M - Maximum length of event in samples. For ex., sleep spindles are 0.5s
 % in length. In that case, M = 0.5 X sampling frequency
 % K - Total number of dictionary atoms/ templates/ clusters of events.
-% Ourputs
+% Outputs
 % MPP - structure comprising of trial wise detections (as a marked point process (MPP)): 
 %       PhEv - normalized snippet of the exracted event,
 %       tau - time point of occurrence (mid - point),
@@ -82,6 +82,7 @@ clear D
 
 for i = 1:K
  D(i).cent = D_fin(idx).Rep(:,i);
+%  D(i).len = len(D_fin(idx).Rep(:,i));
 end
 
 % D = Rem_OutBand(D);
