@@ -20,7 +20,7 @@ if all(sz == sz(1))
     for d = 1:n_te
         if (n_te == 1 && length(D(1).cent) < M)
             D_new = D;
-            D_new(1).len = lenght(D(1).cent);
+            D_new(1).len = length(D(1).cent);
     	    break;
         end
 
@@ -132,8 +132,9 @@ while stp_fl == 0
     
 end
 
-MPP(end) = [];
-
+if length(MPP) > 1
+    MPP(end) = [];
+end
 end
 
 function [tau_p, fl] = check_potential_PhEv(max_tau, M)

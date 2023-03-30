@@ -115,8 +115,15 @@ end
 [~, idx_min] = min(abs(s_v));        % Skewness value closest to zero
 p_val = prctile(P_vec,prc_v(idx_min));
 ID = find(P_vec < p_val);
+
 idx_lr = I(find(P_vec >= p_val));
 idx_sp = I(find(P_vec < p_val));
+
+if isempty(ID)
+    ID = find(P_vec <= p_val);
+    idx_lr = I(find(P_vec > p_val));
+    idx_sp = I(find(P_vec <= p_val));
+end
 
 mv = mean(sqrt(movvar(vecnorm(X_M(:,I)),10)));
 
