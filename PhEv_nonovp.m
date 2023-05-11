@@ -15,30 +15,21 @@ MPP = struct();
 n = 1;
 
 sz = arrayfun(@(s) numel(s.cent),D);
-if all(sz == sz(1))
-    D_new = struct();
-    for d = 1:n_te
-        if (n_te == 1 && length(D(1).cent) < M)
-            D_new = D;
-            D_new(1).len = length(D(1).cent);
-    	    break;
-        end
-
-        d_n = setPhEv(D(d).cent,1,f);
-        if ~isempty(d_n)
-            D_new(n).cent = d_n;
-            D_new(n).len = length(d_n);
-            n = n+1;
-        elseif(isempty(d_n) && n_te == 1)
-            D_new = D;
-            D_new(1).len = length(D(1).cent);
-        end
-
+D_new = struct();
+for d = 1:n_te
+    d_n = D(d).cent;
+    if ~isempty(d_n)
+        D_new(n).cent = d_n;
+        D_new(n).len = length(d_n);
+        n = n+1;
+    elseif(isempty(d_n) && n_te == 1)
+        D_new = D;
+        D_new(1).len = length(D(1).cent);
     end
-    clear D
-    D = D_new;
-    clear D_new
 end
+clear D
+D = D_new;
+clear D_new
 
 n_te = size(D,2);
 
@@ -48,21 +39,12 @@ if iscolumn(x) == 0
 end
 i = 2;
 
-
 % Correlations b/w signal and atoms 
-if f
-    for n = 1:n_te
-        for j = 1:N
-            if j + D(n).len <= N corrs(j,n) = D(n).cent'*x(j:j+D(n).len-1);
-            else corrs(j,n) = D(n).cent'*[x(j:N,1); x(1:D(n).len - (N - j + 1),1)]; end
-        end
-    end
-else
-    for n = 1:n_te
-        corrs(:,n) = cconv(x,flipud(D(n).cent),length(x)+D(n).len);
-    end
-    corrs = corrs(D(1).len:end-1,:);
+for n = 1:n_te
+    corrs(:,n) = cconv(x,flipud(D(n).cent),length(x)+D(n).len);
 end
+corrs = corrs(D(1).len:end-1,:);
+
 abs_corrs = abs(corrs);
 [max_tau, max_D_idx] = max(abs_corrs,[],2);
 
@@ -80,7 +62,7 @@ else
     else
         max_tau(idx_max - M + 1:idx_max+ M -1) = zeros(2*M - 1,1);
     end
-    
+    x_unset = x(idx_max:idx_max + M -1, 1);
     [x_set,t_new] = setPhEv(x(idx_max:idx_max + M - 1,1),idx_max,f);
     if ~isempty(x_set)
         MPP(i-1).tau = t_new;
@@ -109,6 +91,7 @@ while stp_fl == 0
                 else
                     max_tau(idx_max - M + 1:idx_max+ M -1) = zeros(2*M - 1,1);
                 end
+                x_unset = x(idx_max:idx_max + M - 1, 1);
                 [x_set,t_new] = setPhEv(x(idx_max:idx_max + M - 1,1),idx_max,f);
                 if ~isempty(x_set)
                     MPP(i).tau = t_new;
@@ -120,7 +103,7 @@ while stp_fl == 0
                 end
             end
             if ~isempty(fieldnames(MPP)) % stopping criteria
-                if (norm(MPP(i-1).PhEv)) < th
+                if (norm(x_unset)) < th
                     stp_fl = 1;
                     break;
                 end
@@ -132,9 +115,7 @@ while stp_fl == 0
     
 end
 
-if length(MPP) > 1
-    MPP(end) = [];
-end
+MPP(end) = [];
 end
 
 function [tau_p, fl] = check_potential_PhEv(max_tau, M)
@@ -166,7 +147,7 @@ function [x,t] = setPhEv(x_i,t_i,f)
 if f
     M = 1:length(x_i);
     aux_M = round(M(end)/2);
-    x_hs = smooth(abs(hilbert(x_i)));
+    x_hs = smooth(abs(hilbert(x_i)), 20);
     [~,L_idx] = findpeaks(max(x_hs) - x_hs,'MinPeakDistance',aux_M);
     x_norm = zeros(length(L_idx)+1,1);
     n_idx = length(L_idx);
@@ -199,9 +180,14 @@ if f
     end
     
     x =[]; t =[];
-    if (length(idx) > M(end)/2)
+    if (length(idx) > 2*M(end)/3)
         x = x_i(idx);
         t = t_i + idx(1) + round(length(x)/2)-1;
+    else
+        m = round(2*M(end)/3 - length(idx));
+        idx = [idx(1):idx(1) - round(m/2), idx, idx(end):min(idx(end)+ round(m/2), length(x_i))];
+        x = x_i(idx);
+        t = t_i + idx(1) + round(length(x)/2)-1; 
     end
 else
     x = x_i;
