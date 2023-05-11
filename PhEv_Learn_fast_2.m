@@ -87,8 +87,8 @@ end
 
 % D = Rem_OutBand(D);
 
-% Final Decomposition
-[MPP,D] = Decomp_EEG(X,D,M,th,1);
+% Final Decomposition - no trimming 
+[MPP,D] = Decomp_EEG(X,D,M,th,0);
 
 th_opt = th;
 end     
