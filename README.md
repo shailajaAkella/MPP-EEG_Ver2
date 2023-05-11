@@ -29,5 +29,8 @@ For testing, call:
 
 ```
 th = GetThreshold(X,M,ar,bw); # to adjust threshold on unseen data
-MPP = Decomp_EEG(X,D,M,th,1);  # to make detections on testing data
+MPP = Decomp_EEG(X,D,M,th,1);  # to make detections on test data - trims the events to include only oscillations
+or 
+MPP = Decomp_EEG(X,D,M,th,0);  # to make detections on test data - for no event trimming
+
 ```
